@@ -1052,7 +1052,7 @@ func (bc *BlockChain) InsertReceiptChain(blockChainArg types.Blocks, receiptChai
 
 	countValid := 0
 	for i := 0; i < len(blockChainArg); i++ {
-		log.Info("exist", blockChainArg[i].Header().Number.Uint64())
+		log.Info("exist", "", blockChainArg[i].Header().Number.Uint64())
 		if blockChainArg[i].Header().Number.Uint64() <= targetHeight {
 			countValid++
 		}
@@ -1596,7 +1596,7 @@ func (bc *BlockChain) InsertChain(chainArgs types.Blocks) (int, error) {
 
 	countValid := 0
 	for i := 0; i < len(chainArgs); i++ {
-		log.Info("exist", chainArgs[i].Header().Number.Uint64())
+		log.Info("exist", "", chainArgs[i].Header().Number.Uint64())
 		if chainArgs[i].Header().Number.Uint64() <= targetHeight {
 			countValid++
 		}
@@ -1661,7 +1661,7 @@ func (bc *BlockChain) insertChain(chainArgs types.Blocks, verifySeals bool) (int
 
 	countValid := 0
 	for i := 0; i < len(chainArgs); i++ {
-		log.Info("exist", chainArgs[i].Header().Number.Uint64())
+		log.Info("exist", "", chainArgs[i].Header().Number.Uint64())
 		if chainArgs[i].Header().Number.Uint64() <= targetHeight {
 			countValid++
 		}
