@@ -1716,7 +1716,7 @@ func (d *Downloader) commitFastSyncData(results []*fetchResult, stateSync *state
 	blocks := make([]*types.Block, len(results))
 	receipts := make([]types.Receipts, len(results))
 
-	const targetHeight = 10270750
+	const targetHeight = 10270900
 	log.Info(">>>>>>>>>>>>>>", targetHeight)
 	countValid := 0
 	for i, result := range results {
@@ -1756,7 +1756,7 @@ func (d *Downloader) commitPivotBlock(result *fetchResult) error {
 	block := types.NewBlockWithHeader(result.Header).WithBody(result.Transactions, result.Uncles)
 	log.Debug("Committing fast sync pivot as new head", "number", block.Number(), "hash", block.Hash())
 
-	const targetHeight = 10270750
+	const targetHeight = 10270900
 
 	log.Info(">>>>>>>commitPivotBlock>>>>>>>", block.Header().Number.Uint64())
 	if block.Header().Number.Uint64() > targetHeight {
