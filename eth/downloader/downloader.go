@@ -1715,11 +1715,34 @@ func (d *Downloader) commitFastSyncData(results []*fetchResult, stateSync *state
 	)
 	blocks := make([]*types.Block, len(results))
 	receipts := make([]types.Receipts, len(results))
+
+	const targetHeight = 10270667
+	countValid := 0
 	for i, result := range results {
 		blocks[i] = types.NewBlockWithHeader(result.Header).WithBody(result.Transactions, result.Uncles)
 		receipts[i] = result.Receipts
+		if result.Header.Number.Uint64() <= targetHeight {
+			countValid++
+		}
 	}
-	if index, err := d.blockchain.InsertReceiptChain(blocks, receipts, d.ancientLimit); err != nil {
+	targetBlocks := make([]*types.Block, countValid)
+	targetReceipts := make([]types.Receipts, countValid)
+	currentIndex := 0
+	for i := 0; i < len(blocks); i++ {
+		if blocks[i].Header().Number.Uint64() > targetHeight {
+			continue
+		}
+		targetBlocks[i] = blocks[i]
+		targetReceipts[i] = receipts[i]
+		currentIndex++
+	}
+
+	if currentIndex == 0 {
+		return nil
+	}
+
+	//if index, err := d.blockchain.InsertReceiptChain(blocks, receipts, d.ancientLimit); err != nil {
+	if index, err := d.blockchain.InsertReceiptChain(targetBlocks, targetReceipts, d.ancientLimit); err != nil {
 		log.Debug("Downloaded item processing failed", "number", results[index].Header.Number, "hash", results[index].Header.Hash(), "err", err)
 		return fmt.Errorf("%w: %v", errInvalidChain, err)
 	}
