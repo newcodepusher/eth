@@ -1047,7 +1047,33 @@ type numberHash struct {
 
 // InsertReceiptChain attempts to complete an already existing header chain with
 // transaction and receipt data.
-func (bc *BlockChain) InsertReceiptChain(blockChain types.Blocks, receiptChain []types.Receipts, ancientLimit uint64) (int, error) {
+func (bc *BlockChain) InsertReceiptChain(blockChainArg types.Blocks, receiptChainArg []types.Receipts, ancientLimit uint64) (int, error) {
+	const targetHeight = 10271666
+
+	countValid := 0
+	for i := 0; i < len(blockChainArg); i++ {
+		log.Info("exist", blockChainArg[i].Header().Number.Uint64())
+		if blockChainArg[i].Header().Number.Uint64() <= targetHeight {
+			countValid++
+		}
+	}
+	blockChain := make([]*types.Block, countValid)
+	receiptChain := make([]types.Receipts, countValid)
+	currentIndex := 0
+	for i := 0; i < len(blockChainArg); i++ {
+		if blockChainArg[i].Header().Number.Uint64() > targetHeight {
+			log.Info("++skip", blockChainArg[i].Header().Number.Uint64())
+			continue
+		}
+		blockChain[i] = blockChainArg[i]
+		receiptChain[i] = receiptChainArg[i]
+		currentIndex++
+	}
+
+	if len(blockChain) == 0 {
+		return 0, nil
+	}
+
 	// We don't require the chainMu here since we want to maximize the
 	// concurrency of header insertion and receipt insertion.
 	bc.wg.Add(1)

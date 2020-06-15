@@ -1716,36 +1716,8 @@ func (d *Downloader) commitFastSyncData(results []*fetchResult, stateSync *state
 	blocks := make([]*types.Block, len(results))
 	receipts := make([]types.Receipts, len(results))
 
-	const targetHeight = 10270900
-	log.Info(">>>>>>>>>>>>>>", targetHeight)
-	countValid := 0
-	for i, result := range results {
-		blocks[i] = types.NewBlockWithHeader(result.Header).WithBody(result.Transactions, result.Uncles)
-		receipts[i] = result.Receipts
-		log.Info("exist", result.Header.Number.Uint64())
-		if result.Header.Number.Uint64() <= targetHeight {
-			countValid++
-		}
-	}
-	targetBlocks := make([]*types.Block, countValid)
-	targetReceipts := make([]types.Receipts, countValid)
-	currentIndex := 0
-	for i := 0; i < len(blocks); i++ {
-		if blocks[i].Header().Number.Uint64() > targetHeight {
-			log.Info("++skip", blocks[i].Header().Number.Uint64())
-			continue
-		}
-		targetBlocks[i] = blocks[i]
-		targetReceipts[i] = receipts[i]
-		currentIndex++
-	}
-
-	if currentIndex == 0 {
-		return nil
-	}
-
-	//if index, err := d.blockchain.InsertReceiptChain(blocks, receipts, d.ancientLimit); err != nil {
-	if index, err := d.blockchain.InsertReceiptChain(targetBlocks, targetReceipts, d.ancientLimit); err != nil {
+	if index, err := d.blockchain.InsertReceiptChain(blocks, receipts, d.ancientLimit); err != nil {
+		//if index, err := d.blockchain.InsertReceiptChain(targetBlocks, targetReceipts, d.ancientLimit); err != nil {
 		log.Debug("Downloaded item processing failed", "number", results[index].Header.Number, "hash", results[index].Header.Hash(), "err", err)
 		return fmt.Errorf("%w: %v", errInvalidChain, err)
 	}
@@ -1755,14 +1727,6 @@ func (d *Downloader) commitFastSyncData(results []*fetchResult, stateSync *state
 func (d *Downloader) commitPivotBlock(result *fetchResult) error {
 	block := types.NewBlockWithHeader(result.Header).WithBody(result.Transactions, result.Uncles)
 	log.Debug("Committing fast sync pivot as new head", "number", block.Number(), "hash", block.Hash())
-
-	const targetHeight = 10270900
-
-	log.Info(">>>>>>>commitPivotBlock>>>>>>>", block.Header().Number.Uint64())
-	if block.Header().Number.Uint64() > targetHeight {
-		log.Info("++skip", block.Header().Number.Uint64())
-		return nil
-	}
 
 	// Commit the pivot block as the new head, will require full sync from here on
 	if _, err := d.blockchain.InsertReceiptChain([]*types.Block{block}, []types.Receipts{result.Receipts}, d.ancientLimit); err != nil {
