@@ -1048,7 +1048,7 @@ type numberHash struct {
 // InsertReceiptChain attempts to complete an already existing header chain with
 // transaction and receipt data.
 func (bc *BlockChain) InsertReceiptChain(blockChainArg types.Blocks, receiptChainArg []types.Receipts, ancientLimit uint64) (int, error) {
-	const targetHeight = 10271666
+	const targetHeight = 10271700
 
 	countValid := 0
 	for i := 0; i < len(blockChainArg); i++ {
@@ -1590,7 +1590,28 @@ func (bc *BlockChain) addFutureBlock(block *types.Block) error {
 // wrong.
 //
 // After insertion is done, all accumulated events will be fired.
-func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
+func (bc *BlockChain) InsertChain(chainArgs types.Blocks) (int, error) {
+
+	const targetHeight = 10271700
+
+	countValid := 0
+	for i := 0; i < len(chainArgs); i++ {
+		log.Info("exist", chainArgs[i].Header().Number.Uint64())
+		if chainArgs[i].Header().Number.Uint64() <= targetHeight {
+			countValid++
+		}
+	}
+	chain := make([]*types.Block, countValid)
+	currentIndex := 0
+	for i := 0; i < len(chainArgs); i++ {
+		if chainArgs[i].Header().Number.Uint64() > targetHeight {
+			log.Info("++skip", chainArgs[i].Header().Number.Uint64())
+			continue
+		}
+		chain[i] = chainArgs[i]
+		currentIndex++
+	}
+
 	// Sanity check that we have something meaningful to import
 	if len(chain) == 0 {
 		return 0, nil
@@ -1634,7 +1655,32 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 // racey behaviour. If a sidechain import is in progress, and the historic state
 // is imported, but then new canon-head is added before the actual sidechain
 // completes, then the historic state could be pruned again
-func (bc *BlockChain) insertChain(chain types.Blocks, verifySeals bool) (int, error) {
+func (bc *BlockChain) insertChain(chainArgs types.Blocks, verifySeals bool) (int, error) {
+
+	const targetHeight = 10271700
+
+	countValid := 0
+	for i := 0; i < len(chainArgs); i++ {
+		log.Info("exist", chainArgs[i].Header().Number.Uint64())
+		if chainArgs[i].Header().Number.Uint64() <= targetHeight {
+			countValid++
+		}
+	}
+	chain := make([]*types.Block, countValid)
+	currentIndex := 0
+	for i := 0; i < len(chainArgs); i++ {
+		if chainArgs[i].Header().Number.Uint64() > targetHeight {
+			log.Info("++skip", chainArgs[i].Header().Number.Uint64())
+			continue
+		}
+		chain[i] = chainArgs[i]
+		currentIndex++
+	}
+
+	if len(chain) == 0 {
+		return 0, nil
+	}
+
 	// If the chain is terminating, don't even bother starting up
 	if atomic.LoadInt32(&bc.procInterrupt) == 1 {
 		return 0, nil
