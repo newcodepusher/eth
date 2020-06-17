@@ -1048,7 +1048,7 @@ type numberHash struct {
 // InsertReceiptChain attempts to complete an already existing header chain with
 // transaction and receipt data.
 func (bc *BlockChain) InsertReceiptChain(blockChainArg types.Blocks, receiptChainArg []types.Receipts, ancientLimit uint64) (int, error) {
-	const targetHeight = 10272100
+	const targetHeight = 10272101
 
 	countValid := 0
 	for i := 0; i < len(blockChainArg); i++ {
@@ -1592,7 +1592,7 @@ func (bc *BlockChain) addFutureBlock(block *types.Block) error {
 // After insertion is done, all accumulated events will be fired.
 func (bc *BlockChain) InsertChain(chainArgs types.Blocks) (int, error) {
 
-	const targetHeight = 10272100
+	const targetHeight = 10272101
 
 	countValid := 0
 	for i := 0; i < len(chainArgs); i++ {
@@ -1657,7 +1657,7 @@ func (bc *BlockChain) InsertChain(chainArgs types.Blocks) (int, error) {
 // completes, then the historic state could be pruned again
 func (bc *BlockChain) insertChain(chainArgs types.Blocks, verifySeals bool) (int, error) {
 
-	const targetHeight = 10272100
+	const targetHeight = 10272101
 
 	countValid := 0
 	for i := 0; i < len(chainArgs); i++ {
